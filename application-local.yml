@@ -1,9 +1,8 @@
 aws:
   region: eu-central-1
-
   dynamodb:
     endpoint: http://localhost:8000
-
   s3:
     endpoint: http://localhost:4566
     bucket: my-local-bucket
+env: dev

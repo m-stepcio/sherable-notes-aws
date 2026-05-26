@@ -1,7 +1,6 @@
 package com.sharable.notes.service;
 
 import com.sharable.notes.config.AwsConfigProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -11,7 +10,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import java.net.URI;
 
 @Service
-public class DynameConnectionService {
+public class DynamoConnectionService {
 
 
     public DynamoDbClient connect() {
