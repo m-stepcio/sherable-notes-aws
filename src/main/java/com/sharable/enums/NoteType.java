@@ -3,11 +3,11 @@ package com.sharable.enums;
 import lombok.Getter;
 
 @Getter
-public enum FileType {
+public enum NoteType {
     MARKDOWN("markdown"),
     PLAIN_TEXT("plain text");
 
-    FileType(String name) {
+    NoteType(String name) {
         this.name = name;
     }
 

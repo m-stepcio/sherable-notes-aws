@@ -1,9 +1,14 @@
 package com.sharable.notes.model;
 
+import com.sharable.enums.NoteType;
+
+import java.io.InputStream;
+
 public record CreateNoteRequest(
-         String ownerId,
-         String title,
-         byte[] content
+         String name,
+         InputStream content,
+         long size,
+         NoteType noteType
 ) {
 
 }
