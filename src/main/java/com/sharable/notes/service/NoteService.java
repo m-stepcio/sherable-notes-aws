@@ -1,20 +1,21 @@
 package com.sharable.notes.service;
 
 import com.sharable.auth.model.User;
-import com.sharable.notes.model.CreateNoteRequest;
+import com.sharable.notes.dto.CreateNoteRequest;
 import com.sharable.notes.model.Note;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Service
+@AllArgsConstructor
 public class NoteService {
     private final StorageService storageService;
-    private final DynamoConnectionService dynamoConnectionService;
+    private final DynamoDbClient dynamoDbClient;
 
-
-    public
 
 
     public void createNote(CreateNoteRequest request, User user){
@@ -28,8 +29,5 @@ public class NoteService {
                 .version(1)
                 .lastModifyBy(user.getId())
                 .build();
-
-        d
-
     }
 }

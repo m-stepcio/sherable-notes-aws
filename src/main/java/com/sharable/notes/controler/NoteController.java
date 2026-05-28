@@ -1,11 +1,13 @@
 package com.sharable.notes.controler;
 
 
-import com.sharable.notes.model.CreateNoteRequest;
-import com.sharable.notes.model.Note;
+import com.sharable.auth.model.User;
+import com.sharable.notes.dto.CreateNoteRequest;
+import com.sharable.notes.dto.NotesInfoResponse;
 import com.sharable.notes.response.CreateResponse;
 import com.sharable.notes.service.NoteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,7 +25,13 @@ public class NoteController {
 
     @PostMapping()
     public CreateResponse createNote(@RequestParam CreateNoteRequest note){
-        noteService.createNote(note);
+        User mockUser = new User("23444", "test123");
+        noteService.createNote(note, mockUser);
         return new CreateResponse();
+    }
+
+    @GetMapping()
+    public NotesInfoResponse getNotesInfo(){
+        return null;
     }
 }
