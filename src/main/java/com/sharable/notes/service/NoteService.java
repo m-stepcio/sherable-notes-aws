@@ -1,25 +1,21 @@
 package com.sharable.notes.service;
 
 import com.sharable.auth.model.User;
+import com.sharable.enums.FileStatus;
 import com.sharable.exception.ValidationException;
 import com.sharable.notes.dto.CreateNoteRequest;
+import com.sharable.notes.dto.CreateNoteResponse;
 import com.sharable.notes.model.Note;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.utils.StringUtils;
 
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static software.amazon.awssdk.utils.StringUtils.isBlank;
-import static software.amazon.awssdk.utils.StringUtils.isNotBlank;
 
 @Service
 @AllArgsConstructor
@@ -29,8 +25,7 @@ public class NoteService {
     private final DynamoDbService dynamoDbService;
 
 
-
-    public void createNote(CreateNoteRequest request, User user){
+    public CreateNoteResponse createNote(CreateNoteRequest request, User user){
         String directory = parseDirectory(request.directory());
         validateDirectory(directory);
 
@@ -42,10 +37,15 @@ public class NoteService {
                 .fileType(request.noteType())
                 .version(1)
                 .lastModifyBy(user.getId())
-                .directory(directory);
+                .directory(directory)
+                .fileStatus(FileStatus.PENDING);
+
+        String objectName = UUID.randomUUID().toString();
+        noteBuilder.objectName(objectName);
 
         dynamoDbService.createNewNote(noteBuilder.build());
-        storageService.createPresignedUrl();
+        String presignedUrl = storageService.createPresignedUrl(objectName);
+        return new CreateNoteResponse(presignedUrl);
     }
 
 

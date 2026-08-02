@@ -1,5 +1,6 @@
 package com.sharable.notes.model;
 
+import com.sharable.enums.FileStatus;
 import com.sharable.enums.NoteType;
 import lombok.Builder;
 
@@ -17,4 +18,6 @@ public class Note {
     private NoteType fileType;
     private long version;
     private String lastModifyBy;
+    private FileStatus fileStatus;
+    private String objectName;
 }

@@ -11,6 +11,7 @@ public class DynamoDbService {
     private final DynamoDbClient dynamoDbClient;
 
     public void createNewNote(Note note){
+
     }
 
 }
