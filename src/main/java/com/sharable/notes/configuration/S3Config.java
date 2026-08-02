@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 
+import java.time.Duration;
+
 @Configuration
 public class S3Config {
     @Getter
@@ -15,7 +17,6 @@ public class S3Config {
     @Getter
     @Value("${aws.s3.bucket}")
     private String bucketName;
-    @Getter
     @Value("${aws.s3.signature_duration}")
     private String signatureDuration;
 
@@ -26,5 +27,9 @@ public class S3Config {
                 .builder()
                 .region(Region.of(region))
                 .build();
+    }
+
+    public Duration getSignatureDuration() {
+        return Duration.ofMinutes(Integer.parseInt(signatureDuration));
     }
 }

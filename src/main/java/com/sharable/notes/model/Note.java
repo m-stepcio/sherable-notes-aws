@@ -5,12 +5,11 @@ import com.sharable.enums.NoteType;
 import lombok.Builder;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Builder
 public class Note {
     private String title;
-    private UUID fileId;
+    private String fileId;
     private String ownerId;
     private Instant creationTime;
     private long size;
@@ -20,4 +19,6 @@ public class Note {
     private String lastModifyBy;
     private FileStatus fileStatus;
     private String objectName;
+    private boolean isLatest;
+    private String rootNoteId;
 }

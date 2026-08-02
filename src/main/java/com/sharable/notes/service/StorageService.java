@@ -26,7 +26,7 @@ public class StorageService {
                     .build();
 
             GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                    .signatureDuration(Duration.ofMinutes(s3Config.getSignatureDuration()))
+                    .signatureDuration(s3Config.getSignatureDuration())
                     .getObjectRequest(objectRequest)
                     .build();
 
