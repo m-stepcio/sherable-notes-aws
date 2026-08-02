@@ -10,7 +10,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 public class S3Config {
     @Value("${aws.region}")
     private String region;
-    @Value("${aws.storage.bucket}")
+    @Value("${aws.s3.bucket}")
     private String bucketName;
 
 

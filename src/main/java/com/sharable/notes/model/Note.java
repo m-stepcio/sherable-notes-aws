@@ -13,6 +13,7 @@ public class Note {
     private String ownerId;
     private Instant creationTime;
     private long size;
+    private String directory;
     private NoteType fileType;
     private long version;
     private String lastModifyBy;

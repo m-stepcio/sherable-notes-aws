@@ -1,128 +1,108 @@
-# Shareable Notes
+# sherable-notes
 
-Shareable Notes is a Spring Boot service for storing notes and sharing their
-metadata. The planned storage model keeps note metadata in DynamoDB and note
-content in S3-compatible object storage.
+> **STATUS: EARLY, UNFINISHED PROTOTYPE**
+>
+> The project does not currently compile or start as a Spring Boot application.
+> Its final product behavior, API contract, DynamoDB schema, and storage flow have
+> not been decided yet.
 
-The project currently provides the application structure and local AWS service
-configuration. The full create, upload, persistence, and listing workflow is
-still being implemented.
+## What this repository contains
 
-## Technology
+This repository is an early Java project exploring a notes service. The source
+currently contains:
 
-- Java 21
-- Maven
-- Spring Boot
-- AWS SDK for Java v2
-- DynamoDB Local for note metadata
-- LocalStack for local S3-compatible storage
+- models for a user and a note;
+- note types for plain text and Markdown;
+- unfinished create-note and list-notes controller methods;
+- unfinished content validators;
+- AWS SDK for Java v2 clients for DynamoDB and S3;
+- local Docker services for DynamoDB Local and LocalStack S3.
 
-## Architecture
+The presence of both DynamoDB and S3 shows that both services were being
+explored. It does **not** establish what each service must store or in which
+order they must be called.
 
-```text
-Client
-  |
-  v
-Spring Boot API
-  |------------------> DynamoDB: note metadata
-  |
-  `------------------> S3 / LocalStack: note content
-```
+## Confirmed project decisions
 
-The project uses AWS SDK v2 clients. DynamoDB integration must use
-`software.amazon.awssdk.services.dynamodb.DynamoDbClient`; it should not use
-the older AWS SDK v1 `AmazonDynamoDB` client.
+- Java 21 and Maven are used.
+- AWS integrations must stay on AWS SDK for Java v2.
+- DynamoDB code must use
+  `software.amazon.awssdk.services.dynamodb.DynamoDbClient`, not the AWS SDK v1
+  `AmazonDynamoDB` client.
+- Local development infrastructure includes DynamoDB Local on port `8000` and
+  LocalStack S3 on port `4566`.
 
-## Project Layout
+No create-note storage sequence has been agreed. In particular, neither
+"S3 then DynamoDB" nor "DynamoDB then S3" is currently a project requirement.
 
-```text
-src/main/java/com/sharable
-├── auth/model                 User model
-├── enums                      Shared enums, including note types
-└── notes
-    ├── configuration           DynamoDB and S3 client configuration
-    ├── controler               HTTP controller (package name kept as-is)
-    ├── dto                     Request and response data types
-    ├── model                   Note domain model
-    ├── repository              Persistence boundary
-    └── service                 Application logic
-```
+## Current code state
 
-## Local Services
+The code is not a working application yet:
 
-Start DynamoDB Local and LocalStack:
+- `NoteService` builds a `Note` object and then ends with the incomplete
+  statement `storageService.s`.
+- `StorageService` is referenced but is not present in the repository.
+- `NoteRepository` is empty, so no DynamoDB read or write operation exists.
+- `Main` is the default IntelliJ sample program and is not a Spring Boot entry
+  point.
+- `NoteController` contains create and list methods, but the create method uses
+  a hard-coded user and the list method returns `null`.
+- `@RestController("/api/notes")` names the Spring bean; it does not map the
+  controller to `/api/notes`.
+- Markdown validation always returns `false`; plain-text validation always
+  returns `true`.
+- Response classes are placeholders without a completed public API contract.
+- The S3 client reads the region but does not use the configured LocalStack
+  endpoint.
+- The Maven file declares the DynamoDB dependency twice and contains an unused
+  `aws-version` property.
+
+Other compile or runtime problems may become visible after the known blockers
+are fixed.
+
+## Local infrastructure
+
+Start the configured containers with:
 
 ```bash
 docker compose up
 ```
 
-The local configuration in `application-local.yml` is:
+The checked-in local configuration is:
 
-| Service | Endpoint | Purpose |
+| Setting | Value | Used by current code |
 | --- | --- | --- |
-| DynamoDB Local | `http://localhost:8000` | Stores note metadata |
-| LocalStack S3 | `http://localhost:4566` | Stores note content |
-| AWS region | `eu-central-1` | Region used by the SDK clients |
-| S3 bucket | `my-local-bucket` | Intended local content bucket |
+| AWS region | `eu-central-1` | DynamoDB and S3 clients |
+| DynamoDB endpoint | `http://localhost:8000` | Yes |
+| S3 endpoint | `http://localhost:4566` | No |
+| S3 bucket | `my-local-bucket` | Read by `S3Config`, otherwise unused |
 
-Run the application with the `local` Spring profile enabled:
+There is currently no valid command documented for starting the application,
+because the repository has no Spring Boot application entry point and does not
+compile.
 
-```bash
-mvn spring-boot:run -Dspring-boot.run.profiles=local
-```
+## Decisions still required
 
-To compile only:
+Before continuing implementation, the expected application behavior needs to
+be defined. The repository and prior discussion do not answer these questions:
 
-```bash
-mvn compile
-```
+1. What does a user send when creating a note: text, a file, or both?
+2. What data, if any, belongs in S3 and what data belongs in DynamoDB?
+3. Which operation makes a note visible, and how should partial failures be
+   handled?
+4. What endpoints and responses should the first version expose?
+5. Is sharing part of the first version, and what does "sharing" mean?
+6. Is real authentication required now, or is a mock user acceptable initially?
 
-## Current State
+These are open product and architecture decisions, not implementation tasks
+that have already been agreed.
 
-Implemented foundation:
+## Conversation checkpoint
 
-- AWS SDK v2 dependencies are declared in Maven.
-- `DynamoDbConfig` creates a `DynamoDbClient` using the configured region and
-  local DynamoDB endpoint.
-- Docker Compose starts DynamoDB Local and LocalStack.
-- Domain types exist for notes, users, note types, and note creation requests.
-- A REST controller and note service provide the starting API structure.
+The work completed in the discussion was limited to identifying an AWS SDK
+version mismatch and confirming that the project should keep AWS SDK v2. The
+current `DynamoDbConfig` now constructs a v2 `DynamoDbClient` and applies the
+configured endpoint override.
 
-Still incomplete:
-
-- `NoteService#createNote` builds a note but does not upload content or save
-  metadata.
-- `NoteRepository` has no DynamoDB implementation.
-- The controller does not yet return a useful create response, and its list
-  endpoint returns `null`.
-- The referenced `StorageService` implementation is missing from the source
-  tree.
-- S3 configuration expects `aws.storage.bucket`, while the local configuration
-  defines `aws.s3.bucket`.
-- The S3 client does not yet apply the configured LocalStack endpoint.
-
-## Next Implementation Steps
-
-1. Align the S3 configuration property names and configure the LocalStack S3
-   endpoint.
-2. Add a `StorageService` that creates or checks the bucket and uploads note
-   content to S3.
-3. Implement a DynamoDB-backed `NoteRepository` using AWS SDK v2, preferably
-   the DynamoDB Enhanced Client for mapping the `Note` model.
-4. Update `NoteService#createNote` to validate content, upload it, then save
-   metadata. Define cleanup behavior if DynamoDB saving fails after an upload.
-5. Change the create endpoint to accept a realistic payload, such as
-   `multipart/form-data` for uploaded files or JSON for text-only notes.
-6. Implement listing and retrieval endpoints with meaningful response types.
-7. Add integration tests against the local DynamoDB and LocalStack services.
-
-## Configuration Note
-
-Keep AWS SDK v2 throughout the project. The DynamoDB client import is:
-
-```java
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-```
-
-For local development, the client needs the DynamoDB Local endpoint override;
-the existing `DynamoDbConfig` is the correct place for that setup.
+No end-to-end note flow was finalized. Any proposed ordering between S3 and
+DynamoDB was an example for discussion, not a decision made for this project.

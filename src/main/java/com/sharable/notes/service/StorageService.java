@@ -1,4 +1,8 @@
 package com.sharable.notes.service;
 
-public interface StorageService {
+public class StorageService {
+
+    public String createPresignedUrl(){
+        return "";
+    }
 }
